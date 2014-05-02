@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.30324.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Map", "Map\Map.csproj", "{4E647575-CA7A-44E8-8159-DE734E01C33D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMLSplitter", "KMLSplitter\KMLSplitter.csproj", "{8D1D931A-022E-4B3D-931F-41FB424AE8FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4E647575-CA7A-44E8-8159-DE734E01C33D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E647575-CA7A-44E8-8159-DE734E01C33D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E647575-CA7A-44E8-8159-DE734E01C33D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D1D931A-022E-4B3D-931F-41FB424AE8FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D1D931A-022E-4B3D-931F-41FB424AE8FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D1D931A-022E-4B3D-931F-41FB424AE8FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D1D931A-022E-4B3D-931F-41FB424AE8FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
