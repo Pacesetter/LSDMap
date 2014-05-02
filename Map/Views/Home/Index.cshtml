@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="">
+    <div id="map" class="map" style="height: 600px; width:100%"></div>
+</div>
+
+@section scripts{
+<script>
+    $(function () { var map = new LSDMap.Home.Index(); });
+</script>
+
+}
