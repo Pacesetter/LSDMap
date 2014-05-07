@@ -9,26 +9,76 @@ using Dapper;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Web.Mvc;
+using Microsoft.SqlServer.Types;
+using System.Data;
 
 namespace Map.Controllers
 {
     public class BoundariesController : ApiController
     {
-        public IEnumerable<Box> Get([FromUri] BoundaryRequest data)
+        public IEnumerable<dynamic> Get([FromUri] BoundaryRequest data)
         {
             using (var connection = GetConnection())
             {
                 connection.Open();
-                var results = connection.Query(@"declare @g geography = geography::STGeomFromText('POLYGON((-110 51, -110 49, -108 49, -108 51, -108 51, -110 51))', 4326);
-                                   select trm, geom from lsds t where @g.STIntersects(t.geom) > 0");
-                return null;
+                var b = new SqlGeographyBuilder();
+                b.SetSrid(4326);
+                b.BeginGeography(OpenGisGeographyType.Polygon);
+                b.BeginFigure(data.NorthEast.Latitude, data.NorthEast.Longitude);
+                b.AddLine(data.NorthWest.Latitude, data.NorthWest.Longitude);
+                b.AddLine(data.SouthWest.Latitude, data.SouthWest.Longitude);
+                b.AddLine(data.SouthEast.Latitude, data.SouthEast.Longitude);
+                b.AddLine(data.NorthEast.Latitude, data.NorthEast.Longitude);
+                b.EndFigure();
+                b.EndGeography();
+                //                var results = connection.Query<Box>(@"declare @g geography = geography::STGeomFromText('POLYGON((-110 51, -110 49, -108 49, -108 51, -108 51, -110 51))', 4326);
+                //                                   select id, trm as Name, geom as Coordinates from lsds t where @g.STIntersects(t.geom) > 0");
+
+                var results = connection.Query<Box>(@"select id, trm as Name, geom as Coordinates from lsds t where @geometry.STIntersects(t.geom) > 0", new SpatialParam("@geometry", b.ConstructedGeography));
+
+                return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates) });
+
             }
         }
         private DbConnection GetConnection()
         {
             return new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
         }
+
+        private IEnumerable<Coordinate> GetCoordinates(SqlGeography geography)
+        {
+            var results = new List<Coordinate>();
+            for (int i = 1; i <= geography.STNumPoints(); i++)
+            {
+                results.Add(new Coordinate { Latitude = geography.STPointN(i).Lat.Value, Longitude = geography.STPointN(i).Long.Value });
+            }
+            return results;
+        }
     }
+
+    public class SpatialParam : SqlMapper.IDynamicParameters
+    {
+        string name;
+        object val;
+
+        public SpatialParam(string name, object val)
+        {
+            this.name = name;
+            this.val = val;
+        }
+
+        public void AddParameters(IDbCommand command, SqlMapper.Identity identity)
+        {
+            var sqlCommand = (SqlCommand)command;
+            sqlCommand.Parameters.Add(new SqlParameter
+            {
+                UdtTypeName = "geography",
+                Value = val,
+                ParameterName = name
+            });
+        }
+    }
+
     public class BoundaryRequest
     {
         public int ZoomLevel { get; set; }

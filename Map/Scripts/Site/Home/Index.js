@@ -14,22 +14,29 @@ var LSDMap;
                 }).addTo(this.map);
                 var baseLayers = { "OpenStreeMap": osm };
 
-                var box = L.polygon([
-                    L.latLng([51, -110]),
-                    L.latLng([49, -110]),
-                    L.latLng([49, -108]),
-                    L.latLng([51, -108]),
-                    L.latLng([51, -110])], { color: "red", fillOpacity: 0 }).addTo(this.map);
-                var overlays = { "LSDs": box };
+                this.overlay = L.multiPolygon([], { color: "blue", fillOpacity: 0 }).addTo(this.map);
+
+                var overlays = { "Boundaries": this.overlay };
 
                 L.control.layers(baseLayers, overlays).addTo(this.map);
 
                 this.map.addEventListener("zoomend", function (e) {
                     if (_this.map.getZoom() == 10)
                         _this.GetBoundaries();
+                    if (_this.map.getZoom() < 10)
+                        _this.ClearBoundaries();
+                });
+                this.map.addEventListener("dragend", function (e) {
+                    if (_this.map.getZoom() == 10)
+                        _this.GetBoundaries();
                 });
             }
+            Index.prototype.ClearBoundaries = function () {
+                this.overlay.setLatLngs([]);
+            };
+
             Index.prototype.GetBoundaries = function () {
+                var _this = this;
                 var data = {
                     zoomLevel: this.map.getZoom(),
                     northEast: {
@@ -46,8 +53,22 @@ var LSDMap;
                     }
                 };
                 $.getJSON("/api/Boundaries", data, function (json) {
-                    return console.dir(json);
+                    return _this.PlotPoints(json);
                 });
+            };
+
+            Index.prototype.PlotPoints = function (data) {
+                var latLongs = [];
+                for (var i = 0; i < data.length; i++) {
+                    var points = [];
+                    for (var j = 0; j < data[i].Coordinates.length; j++) {
+                        points.push(L.latLng(data[i].Coordinates[j].Latitude, data[i].Coordinates[j].Longitude));
+                    }
+                    latLongs.push(points);
+                }
+
+                this.overlay.setLatLngs(latLongs);
+                console.dir(data);
             };
             return Index;
         })();

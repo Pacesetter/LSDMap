@@ -3,7 +3,8 @@
 
 module LSDMap.Home {
     export class Index {
-        map : L.Map;
+        map: L.Map;
+        overlay: L.LayerGroup;
         constructor(public container: JQuery) {
             this.map = L.map("map").setView(L.latLng([51.505, -110.09]), 8);
 
@@ -12,20 +13,26 @@ module LSDMap.Home {
             }).addTo(this.map);
             var baseLayers = { "OpenStreeMap": osm };
 
+            this.overlay = L.multiPolygon([], { color: "blue", fillOpacity: 0 }).addTo(this.map);
 
-            var box = L.polygon([L.latLng([51, -110]),
-                L.latLng([49, -110]),
-                L.latLng([49, -108]),
-                L.latLng([51, -108]),
-                L.latLng([51, -110])], { color: "red", fillOpacity: 0 }).addTo(this.map);
-            var overlays = { "LSDs": box };
+            var overlays = { "Boundaries": this.overlay };
 
             L.control.layers(baseLayers, overlays).addTo(this.map);
 
             this.map.addEventListener("zoomend", (e) => {
                 if (this.map.getZoom() == 10)
                     this.GetBoundaries();
+                if (this.map.getZoom() < 10)
+                    this.ClearBoundaries();
             });
+            this.map.addEventListener("dragend", (e) => {
+                if (this.map.getZoom() == 10)
+                    this.GetBoundaries();
+            });
+        }
+
+        ClearBoundaries() {
+            (<L.MultiPolygon>this.overlay).setLatLngs([]);
         }
 
         GetBoundaries() {
@@ -44,7 +51,24 @@ module LSDMap.Home {
                     Latitude: this.map.getBounds().getSouthWest().lat, Longitude: this.map.getBounds().getSouthWest().lng
                 },
             };
-            $.getJSON("/api/Boundaries", data, (json) => console.dir(json)); 
+            $.getJSON("/api/Boundaries", data, (json) => this.PlotPoints(json)); 
+        }
+
+        PlotPoints(data) {
+            var latLongs = [];
+            for (var i = 0; i < data.length; i++)
+            {
+                var points = [];
+                for(var j = 0; j<data[i].Coordinates.length; j++)
+                {
+                    points.push(L.latLng(data[i].Coordinates[j].Latitude,
+                                         data[i].Coordinates[j].Longitude));
+                }
+                latLongs.push(points);
+            }
+            
+            (<L.MultiPolygon>this.overlay).setLatLngs(latLongs);
+            console.dir(data);
         }
     }
 }
