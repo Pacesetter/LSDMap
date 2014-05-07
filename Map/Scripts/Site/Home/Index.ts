@@ -6,14 +6,14 @@ module LSDMap.Home {
         map: L.Map;
         overlay: L.LayerGroup;
         constructor(public container: JQuery) {
-            this.map = L.map("map").setView(L.latLng([51.505, -110.09]), 8);
+            this.map = L.map("map").setView(L.latLng([47, -100]), 4);
 
             var osm = new L.TileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
                 attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
             }).addTo(this.map);
             var baseLayers = { "OpenStreeMap": osm };
 
-            this.overlay = L.multiPolygon([], { color: "blue", fillOpacity: 0 }).addTo(this.map);
+            this.overlay = L.multiPolygon([], { color: "blue", fillOpacity: 0, weight: 2, clickable: false }).addTo(this.map);
 
             var overlays = { "Boundaries": this.overlay };
 
