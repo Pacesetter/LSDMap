@@ -49,7 +49,7 @@ namespace KMLSplitter
                 while ((s = streamReader.ReadLine()) != null)
                 {
                     if (!initialRead)
-                        builder.Append(s + "\n");
+                        builder.AppendLine(s);
                     if (s.Contains("</Placemark>"))
                     {
                         if (polygons >= PLACEMARKS_IN_A_FILE)
@@ -61,12 +61,17 @@ namespace KMLSplitter
                     }
                     else if (s.Contains("<Placemark>"))
                     {
-                        initialRead = false;
+                        if (initialRead)
+                        {
+                            initialRead = false;
+                            builder.AppendLine(s);
+                        }
                         polygons++;
                     }
 
                 }
             }
+            Console.WriteLine("Done.");
             Console.ReadLine();
         }
 
@@ -74,8 +79,10 @@ namespace KMLSplitter
         private static void WriteOutFile(StringBuilder builder, string destination)
         {
             fileCounter++;
+            Console.WriteLine(String.Format("Writing output{0}.kml", fileCounter));
             Directory.CreateDirectory(destination);
             File.WriteAllText(Path.Combine(destination, String.Format("output{0}.kml", fileCounter)), HEADER + builder + FOOTER);
+
         }
     }
 }
