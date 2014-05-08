@@ -2643,6 +2643,8 @@ declare module L {
           */
         bindPopup(popup: Popup, options?: PopupOptions): Marker;
 
+
+        bindLabel(text: string, options?: any): Marker;
         /**
           * Unbinds the popup previously bound to the marker with bindPopup.
           */

@@ -73,7 +73,12 @@ module LSDMap.Home {
                                          data[i].Coordinates[j].Longitude));
                 }
                 latLongs.push(points);
-                this.markers.addLayer(L.marker(L.latLng([data[i].CenterCoordinates[0].Latitude, data[i].CenterCoordinates[0].Longitude])));
+                var iconOptions: L.IconOptions = { iconUrl: "/Content/images/marker-icon.png", iconSize: new L.Point(0, 0)};
+                var icon: L.Icon = L.icon(iconOptions);
+                var marker = L.marker(L.latLng([data[i].CenterCoordinates[0].Latitude, data[i].CenterCoordinates[0].Longitude]), {icon: icon});
+                marker.bindLabel(data[i].Name, { noHide: true, offset: [-31,-15]});
+                this.markers.addLayer(marker);
+                
                 
             }
             

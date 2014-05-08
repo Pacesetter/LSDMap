@@ -70,7 +70,11 @@ var LSDMap;
                         points.push(L.latLng(data[i].Coordinates[j].Latitude, data[i].Coordinates[j].Longitude));
                     }
                     latLongs.push(points);
-                    this.markers.addLayer(L.marker(L.latLng([data[i].CenterCoordinates[0].Latitude, data[i].CenterCoordinates[0].Longitude])));
+                    var iconOptions = { iconUrl: "/Content/images/marker-icon.png", iconSize: new L.Point(0, 0) };
+                    var icon = L.icon(iconOptions);
+                    var marker = L.marker(L.latLng([data[i].CenterCoordinates[0].Latitude, data[i].CenterCoordinates[0].Longitude]), { icon: icon });
+                    marker.bindLabel(data[i].Name, { noHide: true, offset: [-31, -15] });
+                    this.markers.addLayer(marker);
                 }
 
                 this.boundaries.setLatLngs(latLongs);
