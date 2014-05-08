@@ -136,6 +136,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\BoundariesController.cs" />
+    <Compile Include="Models\BoundaryRequest.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SpatialParam.cs" />
     <Compile Include="Global.asax.cs">

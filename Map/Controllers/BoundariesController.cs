@@ -21,24 +21,42 @@ namespace Map.Controllers
             using (var connection = GetConnection())
             {
                 connection.Open();
-                var b = new SqlGeographyBuilder();
-                b.SetSrid(4326);
-                b.BeginGeography(OpenGisGeographyType.Polygon);
-                b.BeginFigure(data.NorthEast.Latitude, data.NorthEast.Longitude);
-                b.AddLine(data.NorthWest.Latitude, data.NorthWest.Longitude);
-                b.AddLine(data.SouthWest.Latitude, data.SouthWest.Longitude);
-                b.AddLine(data.SouthEast.Latitude, data.SouthEast.Longitude);
-                b.AddLine(data.NorthEast.Latitude, data.NorthEast.Longitude);
-                b.EndFigure();
-                b.EndGeography();
-                //                var results = connection.Query<Box>(@"declare @g geography = geography::STGeomFromText('POLYGON((-110 51, -110 49, -108 49, -108 51, -108 51, -110 51))', 4326);
-                //                                   select id, trm as Name, geom as Coordinates from lsds t where @g.STIntersects(t.geom) > 0");
+                SqlGeographyBuilder searchArea = GetSearchArea(data);
 
-                var results = connection.Query<Box>(@"select id, trm as Name, geom as Coordinates from lsds t where @geometry.STIntersects(t.geom) > 0", new SpatialParam("@geometry", b.ConstructedGeography));
-
-                return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetCoordinates(x.Coordinates.EnvelopeCenter()) });
+                if (data.ZoomLevel >= 10 && data.ZoomLevel < 13)
+                    return GetTownships(connection, searchArea);
+                if (data.ZoomLevel >= 13)
+                    return GetSections(connection, searchArea);
+                return new List<dynamic>();
 
             }
+        }
+        private IEnumerable<dynamic> GetTownships(DbConnection connection, SqlGeographyBuilder searchArea)
+        {
+            var results = connection.Query<Box>(@"select id, trm as Name, geom as Coordinates from townships t where @geometry.STIntersects(t.geom) > 0",
+                                                                new SpatialParam("@geometry", searchArea.ConstructedGeography));
+            return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+        }
+
+        private IEnumerable<dynamic> GetSections(DbConnection connection, SqlGeographyBuilder searchArea)
+        {
+            var results = connection.Query<Box>(@"select id, ptwp +'-'+ prge +'-' + pmer + '-' + SECT as Name, geom as Coordinates from sections s where @geometry.STIntersects(s.geom) > 0",
+                                                                new SpatialParam("@geometry", searchArea.ConstructedGeography));
+            return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+        }
+        private static SqlGeographyBuilder GetSearchArea(BoundaryRequest data)
+        {
+            var searchArea = new SqlGeographyBuilder();
+            searchArea.SetSrid(4326);
+            searchArea.BeginGeography(OpenGisGeographyType.Polygon);
+            searchArea.BeginFigure(data.NorthEast.Latitude, data.NorthEast.Longitude);
+            searchArea.AddLine(data.NorthWest.Latitude, data.NorthWest.Longitude);
+            searchArea.AddLine(data.SouthWest.Latitude, data.SouthWest.Longitude);
+            searchArea.AddLine(data.SouthEast.Latitude, data.SouthEast.Longitude);
+            searchArea.AddLine(data.NorthEast.Latitude, data.NorthEast.Longitude);
+            searchArea.EndFigure();
+            searchArea.EndGeography();
+            return searchArea;
         }
         private DbConnection GetConnection()
         {
@@ -54,16 +72,20 @@ namespace Map.Controllers
             }
             return results;
         }
-    }
 
-    public class BoundaryRequest
-    {
-        public int ZoomLevel { get; set; }
-        public Coordinate NorthWest { get; set; }
-        public Coordinate NorthEast { get; set; }
-        public Coordinate SouthWest { get; set; }
-        public Coordinate SouthEast { get; set; }
+        private Coordinate GetLabelCoordinates(SqlGeography geography)
+        {
+            double maxLatitude = double.MinValue;
+            double maxLongitude = double.MinValue;
+            for (int i = 1; i <= geography.STNumPoints(); i++)
+            {
+                if (geography.STPointN(i).Lat.Value > maxLatitude)
+                    maxLatitude = geography.STPointN(i).Lat.Value;
+                if (geography.STPointN(i).Long.Value > maxLongitude)
+                    maxLongitude = geography.STPointN(i).Long.Value;
+            }
+            return new Coordinate { Latitude = maxLatitude, Longitude = maxLongitude };
+        }
     }
-
 
 }

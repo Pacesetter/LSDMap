@@ -25,13 +25,13 @@ module LSDMap.Home {
             L.control.layers(baseLayers, overlays).addTo(this.map);
 
             this.map.addEventListener("zoomend", (e) => {
-                if (this.map.getZoom() == 10)
+                if (this.map.getZoom() >= 10)
                     this.GetBoundaries();
                 if (this.map.getZoom() < 10)
                     this.ClearBoundaries();
             });
             this.map.addEventListener("dragend", (e) => {
-                if (this.map.getZoom() == 10)
+                if (this.map.getZoom() >= 10)
                     this.GetBoundaries();
             });
 
@@ -64,6 +64,7 @@ module LSDMap.Home {
 
         PlotPoints(data) {
             var latLongs = [];
+            this.markers.clearLayers();
             for (var i = 0; i < data.length; i++)
             {
                 var points = [];
@@ -75,15 +76,11 @@ module LSDMap.Home {
                 latLongs.push(points);
                 var iconOptions: L.IconOptions = { iconUrl: "/Content/images/marker-icon.png", iconSize: new L.Point(0, 0)};
                 var icon: L.Icon = L.icon(iconOptions);
-                var marker = L.marker(L.latLng([data[i].CenterCoordinates[0].Latitude, data[i].CenterCoordinates[0].Longitude]), {icon: icon});
-                marker.bindLabel(data[i].Name, { noHide: true, offset: [-31,-15]});
+                var marker = L.marker(L.latLng([data[i].CenterCoordinates.Latitude, data[i].CenterCoordinates.Longitude]), {icon: icon});
+                marker.bindLabel(data[i].Name, { noHide: true, offset: [0,0]});
                 this.markers.addLayer(marker);
-                
-                
             }
-            
             this.boundaries.setLatLngs(latLongs);
-            console.dir(data);
         }
     }
 }
