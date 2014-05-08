@@ -7,6 +7,7 @@ module LSDMap.Home {
         boundaries: L.MultiPolygon;
         markers: L.LayerGroup;
         constructor(public container: JQuery) {
+            L.Icon.Default.imagePath = "/Content/images";
             this.map = L.map("map").setView(L.latLng([47, -100]), 4);
 
             var osm = new L.TileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
