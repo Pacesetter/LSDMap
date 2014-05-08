@@ -36,7 +36,7 @@ namespace Map.Controllers
 
                 var results = connection.Query<Box>(@"select id, trm as Name, geom as Coordinates from lsds t where @geometry.STIntersects(t.geom) > 0", new SpatialParam("@geometry", b.ConstructedGeography));
 
-                return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates) });
+                return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetCoordinates(x.Coordinates.EnvelopeCenter()) });
 
             }
         }

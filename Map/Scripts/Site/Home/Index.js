@@ -14,9 +14,13 @@ var LSDMap;
                 }).addTo(this.map);
                 var baseLayers = { "OpenStreeMap": osm };
 
-                this.overlay = L.multiPolygon([], { color: "blue", fillOpacity: 0, weight: 2, clickable: false }).addTo(this.map);
+                this.boundaries = L.multiPolygon([], { color: "blue", fillOpacity: 0, weight: 2, clickable: false });
+                this.boundaries.addTo(this.map);
 
-                var overlays = { "Boundaries": this.overlay };
+                this.markers = L.layerGroup([L.marker(L.latLng([47, -100]))]);
+                this.markers.addTo(this.map);
+
+                var overlays = { "Boundaries": this.boundaries, 'Markers': this.markers };
 
                 L.control.layers(baseLayers, overlays).addTo(this.map);
 
@@ -32,7 +36,8 @@ var LSDMap;
                 });
             }
             Index.prototype.ClearBoundaries = function () {
-                this.overlay.setLatLngs([]);
+                this.boundaries.setLatLngs([]);
+                this.markers.clearLayers();
             };
 
             Index.prototype.GetBoundaries = function () {
@@ -65,9 +70,10 @@ var LSDMap;
                         points.push(L.latLng(data[i].Coordinates[j].Latitude, data[i].Coordinates[j].Longitude));
                     }
                     latLongs.push(points);
+                    this.markers.addLayer(L.marker(L.latLng([data[i].CenterCoordinates[0].Latitude, data[i].CenterCoordinates[0].Longitude])));
                 }
 
-                this.overlay.setLatLngs(latLongs);
+                this.boundaries.setLatLngs(latLongs);
                 console.dir(data);
             };
             return Index;

@@ -4,7 +4,8 @@
 module LSDMap.Home {
     export class Index {
         map: L.Map;
-        overlay: L.LayerGroup;
+        boundaries: L.MultiPolygon;
+        markers: L.LayerGroup;
         constructor(public container: JQuery) {
             this.map = L.map("map").setView(L.latLng([47, -100]), 4);
 
@@ -13,9 +14,13 @@ module LSDMap.Home {
             }).addTo(this.map);
             var baseLayers = { "OpenStreeMap": osm };
 
-            this.overlay = L.multiPolygon([], { color: "blue", fillOpacity: 0, weight: 2, clickable: false }).addTo(this.map);
+            this.boundaries = L.multiPolygon([], { color: "blue", fillOpacity: 0, weight: 2, clickable: false });
+            this.boundaries.addTo(this.map);
 
-            var overlays = { "Boundaries": this.overlay };
+            this.markers = L.layerGroup([L.marker(L.latLng([47, -100]))]);
+            this.markers.addTo(this.map);
+
+            var overlays = { "Boundaries": this.boundaries, 'Markers': this.markers };
 
             L.control.layers(baseLayers, overlays).addTo(this.map);
 
@@ -29,10 +34,13 @@ module LSDMap.Home {
                 if (this.map.getZoom() == 10)
                     this.GetBoundaries();
             });
+
+            
         }
 
         ClearBoundaries() {
-            (<L.MultiPolygon>this.overlay).setLatLngs([]);
+            this.boundaries.setLatLngs([]);
+            this.markers.clearLayers();
         }
 
         GetBoundaries() {
@@ -65,9 +73,11 @@ module LSDMap.Home {
                                          data[i].Coordinates[j].Longitude));
                 }
                 latLongs.push(points);
+                this.markers.addLayer(L.marker(L.latLng([data[i].CenterCoordinates[0].Latitude, data[i].CenterCoordinates[0].Longitude])));
+                
             }
             
-            (<L.MultiPolygon>this.overlay).setLatLngs(latLongs);
+            this.boundaries.setLatLngs(latLongs);
             console.dir(data);
         }
     }
