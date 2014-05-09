@@ -21,7 +21,7 @@ var LSDMap;
                 this.markers = L.layerGroup([L.marker(L.latLng([47, -100]))]);
                 this.markers.addTo(this.map);
 
-                var overlays = { "Boundaries": this.boundaries, 'Markers': this.markers };
+                var overlays = { "Boundaries": this.boundaries, 'Boundary Labels': this.markers };
 
                 L.control.layers(baseLayers, overlays).addTo(this.map);
 

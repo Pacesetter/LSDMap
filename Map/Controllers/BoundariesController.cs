@@ -25,28 +25,36 @@ namespace Map.Controllers
 
                 if (data.ZoomLevel >= 10 && data.ZoomLevel < 13)
                     return GetTownships(connection, searchArea);
-                if (data.ZoomLevel >= 13)
+                if (data.ZoomLevel >= 13 && data.ZoomLevel < 15)
                     return GetSections(connection, searchArea);
+                if (data.ZoomLevel >= 15)
+                    return GetLSDs(connection, searchArea);
                 return new List<dynamic>();
 
             }
         }
         private IEnumerable<dynamic> GetTownships(DbConnection connection, SqlGeographyBuilder searchArea)
         {
-            var boundingBoxParameters = new BoundingBoxParam();
-            boundingBoxParameters.AddGeography("@geometry", searchArea.ConstructedGeography);
-            var results = connection.Query<Box>(@"select id, trm as Name, geom as Coordinates from townships t where @geometry.STIntersects(t.geom) > 0",
-                                                                boundingBoxParameters);
-            return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+            return FindContainedTownships(connection, searchArea).Select(x => new { Name = x.TRM, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
         }
 
-        private IEnumerable<dynamic> GetSections(DbConnection connection, SqlGeographyBuilder searchArea)
+        private static IEnumerable<Township> FindContainedTownships(DbConnection connection, SqlGeographyBuilder searchArea)
         {
             var boundingBoxParameters = new BoundingBoxParam();
             boundingBoxParameters.AddGeography("@geometry", searchArea.ConstructedGeography);
             var townships = connection.Query<Township>(@"select *, geom as Coordinates from townships t where @geometry.STIntersects(t.geom) > 0", boundingBoxParameters);
+            return townships;
+        }
+        private IEnumerable<dynamic> GetSections(DbConnection connection, SqlGeographyBuilder searchArea)
+        {
+            List<Section> results = FindContainedSections(connection, searchArea);
+            return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+        }
+        private static List<Section> FindContainedSections(DbConnection connection, SqlGeographyBuilder searchArea)
+        {
+            IEnumerable<Township> townships = FindContainedTownships(connection, searchArea);
 
-            List<dynamic> results = new List<dynamic>();
+            List<Section> results = new List<Section>();
             foreach (var township in townships)
             {
                 var sectionsParameters = new BoundingBoxParam();
@@ -54,17 +62,41 @@ namespace Map.Controllers
                 sectionsParameters.AddString("@township", township.TWP);
                 sectionsParameters.AddString("@range", township.RGE);
                 sectionsParameters.AddString("@meridian", township.MER);
-                var sections = connection.Query<Box>(@"select id, 
-                                                             ptwp +'-'+ prge +'-' + pmer + '-' + SECT as Name, 
-                                                             geom as Coordinates from sections s 
-                                                       where ptwp=@township 
-                                                         and prge = @range 
-                                                         and pmer = @meridian 
-                                                         and @geometry.STIntersects(s.geom) > 0",
+                var sections = connection.Query<Section>(@"select *,
+                                                                             geom as Coordinates from sections s
+                                                                       where ptwp=@township
+                                                                         and prge = @range
+                                                                         and pmer = @meridian
+                                                                         and @geometry.STIntersects(s.geom) > 0",
                                                                     sectionsParameters);
-                results.AddRange(sections.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) }));
+
+                results.AddRange(sections);
             }
             return results;
+        }
+        private IEnumerable<dynamic> GetLSDs(DbConnection connection, SqlGeographyBuilder searchArea)
+        {
+            List<LSD> results = new List<LSD>();
+            foreach (var section in FindContainedSections(connection, searchArea))
+            {
+                var lsdsParameters = new BoundingBoxParam();
+                lsdsParameters.AddGeography("@geometry", searchArea.ConstructedGeography);
+                lsdsParameters.AddString("@township", section.PTWP);
+                lsdsParameters.AddString("@range", section.PRGE);
+                lsdsParameters.AddString("@meridian", section.PMER);
+                lsdsParameters.AddString("@section", section.SECT);
+                var lsds = connection.Query<LSD>(@"select *,
+                                                          geom as Coordinates from lsds l
+                                                  where ptwp=@township
+                                                    and prge = @range
+                                                    and pmer = @meridian
+                                                    and psect = @section
+                                                    and @geometry.STIntersects(l.geom) > 0",
+                                                lsdsParameters);
+
+                results.AddRange(lsds);
+            }
+            return results.Select(x => new { Name = x.LLD, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
         }
         private static SqlGeographyBuilder GetSearchArea(BoundaryRequest data)
         {

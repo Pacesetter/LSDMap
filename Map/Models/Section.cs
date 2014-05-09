@@ -16,6 +16,14 @@ namespace Map.Models
         public string PTWP { get; set; }
         public string PRGE { get; set; }
         public string PMER { get; set; }
+        public string Name
+        {
+            get
+            {
+                return String.Format("{0}-{1}-{2}", PTWP, PRGE, PMER);
+            }
+        }
+
         public SqlGeography Coordinates { get; set; }
     }
 }
