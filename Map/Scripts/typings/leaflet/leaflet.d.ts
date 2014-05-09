@@ -1921,6 +1921,9 @@ declare module L {
         enableHighAccuracy?: boolean;
     }
 }
+declare module L.mapbox {
+    function map(id: string, mapboxToken: string, options?: MapOptions): Map;
+}
 
 declare module L {
 

@@ -136,6 +136,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\BoundariesController.cs" />
+    <Compile Include="Controllers\Tiles.cs" />
     <Compile Include="Models\BoundaryRequest.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SpatialParam.cs" />
@@ -155,6 +156,7 @@
     <Content Include="Content\images\marker-icon.png" />
     <Content Include="Content\images\marker-shadow.png" />
     <Content Include="Content\leaflet.label.css" />
+    <Content Include="Content\mapbox.css" />
     <Content Include="Scripts\images\layers-2x.png" />
     <Content Include="Scripts\images\layers.png" />
     <Content Include="Scripts\images\marker-icon-2x.png" />
@@ -172,6 +174,7 @@
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\leaflet.js" />
     <Content Include="Scripts\leaflet.label.js" />
+    <Content Include="Scripts\mapbox-1.6.2.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
