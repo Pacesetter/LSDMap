@@ -139,12 +139,15 @@
     <Compile Include="Controllers\BoundariesController.cs" />
     <Compile Include="Models\BoundaryRequest.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\SpatialParam.cs" />
+    <Compile Include="Controllers\BoundingBoxParam.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Box.cs" />
     <Compile Include="Models\Coordinate.cs" />
+    <Compile Include="Models\LSD.cs" />
+    <Compile Include="Models\Section.cs" />
+    <Compile Include="Models\Township.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
