@@ -7,7 +7,7 @@ namespace Map.Models
 {
     public class Coordinate
     {
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public double Lat { get; set; }
+        public double Lng { get; set; }
     }
 }

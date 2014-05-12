@@ -58,16 +58,16 @@ var LSDMap;
                 var data = {
                     zoomLevel: this.map.getZoom(),
                     northEast: {
-                        Latitude: this.map.getBounds().getNorthEast().lat, Longitude: this.map.getBounds().getNorthEast().lng
+                        Lat: this.map.getBounds().getNorthEast().lat, Lng: this.map.getBounds().getNorthEast().lng
                     },
                     northWest: {
-                        Latitude: this.map.getBounds().getNorthWest().lat, Longitude: this.map.getBounds().getNorthWest().lng
+                        Lat: this.map.getBounds().getNorthWest().lat, Lng: this.map.getBounds().getNorthWest().lng
                     },
                     southEast: {
-                        Latitude: this.map.getBounds().getSouthEast().lat, Longitude: this.map.getBounds().getSouthEast().lng
+                        Lat: this.map.getBounds().getSouthEast().lat, Lng: this.map.getBounds().getSouthEast().lng
                     },
                     southWest: {
-                        Latitude: this.map.getBounds().getSouthWest().lat, Longitude: this.map.getBounds().getSouthWest().lng
+                        Lat: this.map.getBounds().getSouthWest().lat, Lng: this.map.getBounds().getSouthWest().lng
                     }
                 };
                 $.getJSON("/api/Boundaries", data, function (json) {
@@ -81,12 +81,12 @@ var LSDMap;
                 for (var i = 0; i < data.length; i++) {
                     var points = [];
                     for (var j = 0; j < data[i].Coordinates.length; j++) {
-                        points.push(L.latLng(data[i].Coordinates[j].Latitude, data[i].Coordinates[j].Longitude));
+                        points.push(L.latLng(data[i].Coordinates[j].Lat, data[i].Coordinates[j].Lng));
                     }
                     latLongs.push(points);
                     var iconOptions = { iconUrl: "/Content/images/marker-icon.png", iconSize: new L.Point(0, 0) };
                     var icon = L.icon(iconOptions);
-                    var marker = L.marker(L.latLng([data[i].CenterCoordinates.Latitude, data[i].CenterCoordinates.Longitude]), { icon: icon });
+                    var marker = L.marker(L.latLng([data[i].CenterCoordinates.Lat, data[i].CenterCoordinates.Lng]), { icon: icon });
                     marker.bindLabel(data[i].Name, { noHide: true, offset: [0, 0] });
                     this.boundaryLabels.addLayer(marker);
                 }

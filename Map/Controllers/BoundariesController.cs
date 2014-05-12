@@ -104,11 +104,11 @@ namespace Map.Controllers
             var searchArea = new SqlGeographyBuilder();
             searchArea.SetSrid(4326);
             searchArea.BeginGeography(OpenGisGeographyType.Polygon);
-            searchArea.BeginFigure(data.NorthEast.Latitude, data.NorthEast.Longitude);
-            searchArea.AddLine(data.NorthWest.Latitude, data.NorthWest.Longitude);
-            searchArea.AddLine(data.SouthWest.Latitude, data.SouthWest.Longitude);
-            searchArea.AddLine(data.SouthEast.Latitude, data.SouthEast.Longitude);
-            searchArea.AddLine(data.NorthEast.Latitude, data.NorthEast.Longitude);
+            searchArea.BeginFigure(data.NorthEast.Lat, data.NorthEast.Lng);
+            searchArea.AddLine(data.NorthWest.Lat, data.NorthWest.Lng);
+            searchArea.AddLine(data.SouthWest.Lat, data.SouthWest.Lng);
+            searchArea.AddLine(data.SouthEast.Lat, data.SouthEast.Lng);
+            searchArea.AddLine(data.NorthEast.Lat, data.NorthEast.Lng);
             searchArea.EndFigure();
             searchArea.EndGeography();
             return searchArea;
@@ -125,8 +125,8 @@ namespace Map.Controllers
             {
                 results.Add(new Coordinate
                 {
-                    Latitude = Math.Round(geography.STPointN(i).Lat.Value, GetDecimalsFromZoomLevel(zoomLevel)),
-                    Longitude = Math.Round(geography.STPointN(i).Long.Value, GetDecimalsFromZoomLevel(zoomLevel))
+                    Lat = Math.Round(geography.STPointN(i).Lat.Value, GetDecimalsFromZoomLevel(zoomLevel)),
+                    Lng = Math.Round(geography.STPointN(i).Long.Value, GetDecimalsFromZoomLevel(zoomLevel))
                 });
             }
             return results;
@@ -152,7 +152,7 @@ namespace Map.Controllers
                 if (geography.STPointN(i).Long.Value > maxLongitude)
                     maxLongitude = geography.STPointN(i).Long.Value;
             }
-            return new Coordinate { Latitude = maxLatitude, Longitude = maxLongitude };
+            return new Coordinate { Lat = maxLatitude, Lng = maxLongitude };
         }
     }
 
