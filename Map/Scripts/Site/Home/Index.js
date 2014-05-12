@@ -18,10 +18,22 @@ var LSDMap;
                 this.boundaries = L.multiPolygon([], { color: "blue", fillOpacity: 0, weight: 2, clickable: false });
                 this.boundaries.addTo(this.map);
 
-                this.markers = L.layerGroup([L.marker(L.latLng([47, -100]))]);
+                this.boundaryLabels = L.layerGroup([]);
+                this.boundaryLabels.addTo(this.map);
+
+                this.markers = new L.MarkerClusterGroup();
+                this.markers.addLayer(new L.Marker(L.latLng([50, -100])));
+                this.markers.addLayer(new L.Marker(L.latLng([50, -100.1])));
+                this.markers.addLayer(new L.Marker(L.latLng([50, -100.2])));
+                this.markers.addLayer(new L.Marker(L.latLng([50, -100.3])));
+                this.markers.addLayer(new L.Marker(L.latLng([50, -100.4])));
+                this.markers.addLayer(new L.Marker(L.latLng([50, -100.5])));
+                this.markers.addLayer(new L.Marker(L.latLng([50, -100.6])));
+                this.markers.addLayer(new L.Marker(L.latLng([51, -100])));
+                this.markers.addLayer(new L.Marker(L.latLng([55, -100])));
                 this.markers.addTo(this.map);
 
-                var overlays = { "Boundaries": this.boundaries, 'Boundary Labels': this.markers };
+                var overlays = { "Boundaries": this.boundaries, 'Boundary Labels': this.boundaryLabels, 'Markers': this.markers };
 
                 L.control.layers(baseLayers, overlays).addTo(this.map);
 
@@ -38,11 +50,10 @@ var LSDMap;
             }
             Index.prototype.ClearBoundaries = function () {
                 this.boundaries.setLatLngs([]);
-                this.markers.clearLayers();
+                this.boundaryLabels.clearLayers();
             };
 
             Index.prototype.GetBoundaries = function () {
-                var _this = this;
                 var data = {
                     zoomLevel: this.map.getZoom(),
                     northEast: {
@@ -58,14 +69,12 @@ var LSDMap;
                         Latitude: this.map.getBounds().getSouthWest().lat, Longitude: this.map.getBounds().getSouthWest().lng
                     }
                 };
-                $.getJSON("/api/Boundaries", data, function (json) {
-                    return _this.PlotPoints(json);
-                });
+                //$.getJSON("/api/Boundaries", data, (json) => this.PlotPoints(json));
             };
 
             Index.prototype.PlotPoints = function (data) {
                 var latLongs = [];
-                this.markers.clearLayers();
+                this.boundaryLabels.clearLayers();
                 for (var i = 0; i < data.length; i++) {
                     var points = [];
                     for (var j = 0; j < data[i].Coordinates.length; j++) {
@@ -76,7 +85,7 @@ var LSDMap;
                     var icon = L.icon(iconOptions);
                     var marker = L.marker(L.latLng([data[i].CenterCoordinates.Latitude, data[i].CenterCoordinates.Longitude]), { icon: icon });
                     marker.bindLabel(data[i].Name, { noHide: true, offset: [0, 0] });
-                    this.markers.addLayer(marker);
+                    this.boundaryLabels.addLayer(marker);
                 }
                 this.boundaries.setLatLngs(latLongs);
             };

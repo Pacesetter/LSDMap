@@ -5,7 +5,8 @@ module LSDMap.Home {
     export class Index {
         map: L.Map;
         boundaries: L.MultiPolygon;
-        markers: L.LayerGroup;
+        boundaryLabels: L.LayerGroup;
+        markers: L.MarkerClusterGroup;
         constructor(public container: JQuery) {
             L.Icon.Default.imagePath = "/Content/images";
             this.map = L.map("map").setView(L.latLng([47, -100]), 4);
@@ -18,17 +19,29 @@ module LSDMap.Home {
             this.boundaries = L.multiPolygon([], { color: "blue", fillOpacity: 0, weight: 2, clickable: false });
             this.boundaries.addTo(this.map);
 
-            this.markers = L.layerGroup([L.marker(L.latLng([47, -100]))]);
+            this.boundaryLabels = L.layerGroup([]);
+            this.boundaryLabels.addTo(this.map);
+
+            this.markers = new L.MarkerClusterGroup();
+            this.markers.addLayer(new L.Marker(L.latLng([50, -100])));
+            this.markers.addLayer(new L.Marker(L.latLng([50, -100.1])));
+            this.markers.addLayer(new L.Marker(L.latLng([50, -100.2])));
+            this.markers.addLayer(new L.Marker(L.latLng([50, -100.3])));
+            this.markers.addLayer(new L.Marker(L.latLng([50, -100.4])));
+            this.markers.addLayer(new L.Marker(L.latLng([50, -100.5])));
+            this.markers.addLayer(new L.Marker(L.latLng([50, -100.6])));
+            this.markers.addLayer(new L.Marker(L.latLng([51, -100])));
+            this.markers.addLayer(new L.Marker(L.latLng([55, -100])));
             this.markers.addTo(this.map);
 
-            var overlays = { "Boundaries": this.boundaries, 'Boundary Labels': this.markers };
+            var overlays = { "Boundaries": this.boundaries, 'Boundary Labels': this.boundaryLabels, 'Markers': this.markers };
 
             L.control.layers(baseLayers, overlays).addTo(this.map);
 
             this.map.addEventListener("zoomend", (e) => {
                 if (this.map.getZoom() >= 10)
                     this.GetBoundaries();
-                if (this.map.getZoom() < 10)
+                if (this.map.getZoom() < 10) 
                     this.ClearBoundaries();
             });
             this.map.addEventListener("dragend", (e) => {
@@ -41,7 +54,7 @@ module LSDMap.Home {
 
         ClearBoundaries() {
             this.boundaries.setLatLngs([]);
-            this.markers.clearLayers();
+            this.boundaryLabels.clearLayers();
         }
 
         GetBoundaries() {
@@ -60,12 +73,12 @@ module LSDMap.Home {
                     Latitude: this.map.getBounds().getSouthWest().lat, Longitude: this.map.getBounds().getSouthWest().lng
                 },
             };
-            $.getJSON("/api/Boundaries", data, (json) => this.PlotPoints(json)); 
+            //$.getJSON("/api/Boundaries", data, (json) => this.PlotPoints(json)); 
         }
 
         PlotPoints(data) {
             var latLongs = [];
-            this.markers.clearLayers();
+            this.boundaryLabels.clearLayers();
             for (var i = 0; i < data.length; i++)
             {
                 var points = [];
@@ -79,7 +92,7 @@ module LSDMap.Home {
                 var icon: L.Icon = L.icon(iconOptions);
                 var marker = L.marker(L.latLng([data[i].CenterCoordinates.Latitude, data[i].CenterCoordinates.Longitude]), {icon: icon});
                 marker.bindLabel(data[i].Name, { noHide: true, offset: [0,0]});
-                this.markers.addLayer(marker);
+                this.boundaryLabels.addLayer(marker);
             }
             this.boundaries.setLatLngs(latLongs);
         }

@@ -844,6 +844,12 @@ declare module L {
 }
 
 declare module L {
+    export class MarkerClusterGroup extends FeatureGroup {
+        addLayer(Marker);
+    }
+}
+
+declare module L {
 
     export interface FitBoundsOptions extends ZoomPanOptions {
 

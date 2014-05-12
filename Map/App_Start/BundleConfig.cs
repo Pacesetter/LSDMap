@@ -13,6 +13,7 @@ namespace Map
             bundles.Add(new ScriptBundle("~/bundles/map")
                 .Include("~/Scripts/leaflet.js")
                 .Include("~/Scripts/leaflet.label.js")
+                .Include("~/Scripts/leaflet.markercluster.js")
                 .IncludeDirectory("~/Scripts/Site", "*.js", true));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
@@ -28,7 +29,8 @@ namespace Map
                       "~/Content/bootstrap.css",
                       "~/Content/site.css",
                       "~/Content/leaflet.css",
-                      "~/Content/leaflet.label.css"));
+                      "~/Content/leaflet.label.css",
+                      "~/Content/leaflet.markercluster.css"));
 
             // Set EnableOptimizations to false for debugging. For more information,
             // visit http://go.microsoft.com/fwlink/?LinkId=301862
