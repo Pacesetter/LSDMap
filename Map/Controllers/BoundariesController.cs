@@ -24,18 +24,18 @@ namespace Map.Controllers
                 SqlGeographyBuilder searchArea = GetSearchArea(data);
 
                 if (data.ZoomLevel >= 10 && data.ZoomLevel < 13)
-                    return GetTownships(connection, searchArea);
+                    return GetTownships(connection, searchArea, data.ZoomLevel);
                 if (data.ZoomLevel >= 13 && data.ZoomLevel < 15)
-                    return GetSections(connection, searchArea);
+                    return GetSections(connection, searchArea, data.ZoomLevel);
                 if (data.ZoomLevel >= 15)
-                    return GetLSDs(connection, searchArea);
+                    return GetLSDs(connection, searchArea, data.ZoomLevel);
                 return new List<dynamic>();
 
             }
         }
-        private IEnumerable<dynamic> GetTownships(DbConnection connection, SqlGeographyBuilder searchArea)
+        private IEnumerable<dynamic> GetTownships(DbConnection connection, SqlGeographyBuilder searchArea, int zoomLevel)
         {
-            return FindContainedTownships(connection, searchArea).Select(x => new { Name = x.TRM, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+            return FindContainedTownships(connection, searchArea).Select(x => new { Name = x.TRM, Coordinates = GetCoordinates(x.Coordinates, zoomLevel), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
         }
 
         private static IEnumerable<Township> FindContainedTownships(DbConnection connection, SqlGeographyBuilder searchArea)
@@ -45,10 +45,10 @@ namespace Map.Controllers
             var townships = connection.Query<Township>(@"select *, geom as Coordinates from townships t where @geometry.STIntersects(t.geom) > 0", boundingBoxParameters);
             return townships;
         }
-        private IEnumerable<dynamic> GetSections(DbConnection connection, SqlGeographyBuilder searchArea)
+        private IEnumerable<dynamic> GetSections(DbConnection connection, SqlGeographyBuilder searchArea, int zoomLevel)
         {
             List<Section> results = FindContainedSections(connection, searchArea);
-            return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+            return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates, zoomLevel), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
         }
         private static List<Section> FindContainedSections(DbConnection connection, SqlGeographyBuilder searchArea)
         {
@@ -74,7 +74,7 @@ namespace Map.Controllers
             }
             return results;
         }
-        private IEnumerable<dynamic> GetLSDs(DbConnection connection, SqlGeographyBuilder searchArea)
+        private IEnumerable<dynamic> GetLSDs(DbConnection connection, SqlGeographyBuilder searchArea, int zoomLevel)
         {
             List<LSD> results = new List<LSD>();
             foreach (var section in FindContainedSections(connection, searchArea))
@@ -96,7 +96,7 @@ namespace Map.Controllers
 
                 results.AddRange(lsds);
             }
-            return results.Select(x => new { Name = x.LLD, Coordinates = GetCoordinates(x.Coordinates), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+            return results.Select(x => new { Name = x.LLD, Coordinates = GetCoordinates(x.Coordinates, zoomLevel), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
         }
         private static SqlGeographyBuilder GetSearchArea(BoundaryRequest data)
         {
@@ -117,14 +117,27 @@ namespace Map.Controllers
             return new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
         }
 
-        private IEnumerable<Coordinate> GetCoordinates(SqlGeography geography)
+        private IEnumerable<Coordinate> GetCoordinates(SqlGeography geography, int zoomLevel)
         {
             var results = new List<Coordinate>();
             for (int i = 1; i <= geography.STNumPoints(); i++)
             {
-                results.Add(new Coordinate { Latitude = geography.STPointN(i).Lat.Value, Longitude = geography.STPointN(i).Long.Value });
+                results.Add(new Coordinate
+                {
+                    Latitude = Math.Round(geography.STPointN(i).Lat.Value, GetDecimalsFromZoomLevel(zoomLevel)),
+                    Longitude = Math.Round(geography.STPointN(i).Long.Value, GetDecimalsFromZoomLevel(zoomLevel))
+                });
             }
             return results;
+        }
+
+        private int GetDecimalsFromZoomLevel(int zoomLevel)
+        {
+            if (zoomLevel < 13)
+                return 2;
+            if (zoomLevel < 15)
+                return 3;
+            return 4;
         }
 
         private Coordinate GetLabelCoordinates(SqlGeography geography)

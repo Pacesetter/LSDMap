@@ -54,6 +54,7 @@ var LSDMap;
             };
 
             Index.prototype.GetBoundaries = function () {
+                var _this = this;
                 var data = {
                     zoomLevel: this.map.getZoom(),
                     northEast: {
@@ -69,7 +70,9 @@ var LSDMap;
                         Latitude: this.map.getBounds().getSouthWest().lat, Longitude: this.map.getBounds().getSouthWest().lng
                     }
                 };
-                //$.getJSON("/api/Boundaries", data, (json) => this.PlotPoints(json));
+                $.getJSON("/api/Boundaries", data, function (json) {
+                    return _this.PlotPoints(json);
+                });
             };
 
             Index.prototype.PlotPoints = function (data) {

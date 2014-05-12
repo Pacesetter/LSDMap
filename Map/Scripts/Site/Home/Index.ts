@@ -73,7 +73,7 @@ module LSDMap.Home {
                     Latitude: this.map.getBounds().getSouthWest().lat, Longitude: this.map.getBounds().getSouthWest().lng
                 },
             };
-            //$.getJSON("/api/Boundaries", data, (json) => this.PlotPoints(json)); 
+            $.getJSON("/api/Boundaries", data, (json) => this.PlotPoints(json)); 
         }
 
         PlotPoints(data) {
