@@ -20,7 +20,7 @@ namespace Map.Models
         {
             get
             {
-                return String.Format("{0}-{1}-{2}", PTWP, PRGE, PMER);
+                return String.Format("{0}-{1}-{2} W{3}", SECT, PTWP, PRGE, PMER);
             }
         }
 

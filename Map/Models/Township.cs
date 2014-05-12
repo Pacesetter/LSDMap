@@ -15,6 +15,13 @@ namespace Map.Models
         public string RGE { get; set; }
         public string MER { get; set; }
         public string TRM { get; set; }
+        public string Name
+        {
+            get
+            {
+                return String.Format("{0}-{1} W{2}", TWP, RGE, MER);
+            }
+        }
         public SqlGeography Coordinates { get; set; }
     }
 }

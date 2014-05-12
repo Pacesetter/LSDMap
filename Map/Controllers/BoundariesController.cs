@@ -35,7 +35,7 @@ namespace Map.Controllers
         }
         private IEnumerable<dynamic> GetTownships(DbConnection connection, SqlGeographyBuilder searchArea, int zoomLevel)
         {
-            return FindContainedTownships(connection, searchArea).Select(x => new { Name = x.TRM, Coordinates = GetCoordinates(x.Coordinates, zoomLevel), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+            return FindContainedTownships(connection, searchArea).Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates, zoomLevel), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
         }
 
         private static IEnumerable<Township> FindContainedTownships(DbConnection connection, SqlGeographyBuilder searchArea)
@@ -86,6 +86,7 @@ namespace Map.Controllers
                 lsdsParameters.AddString("@meridian", section.PMER);
                 lsdsParameters.AddString("@section", section.SECT);
                 var lsds = connection.Query<LSD>(@"select *,
+                                                          LSD as LSDName,
                                                           geom as Coordinates from lsds l
                                                   where ptwp=@township
                                                     and prge = @range
@@ -96,7 +97,7 @@ namespace Map.Controllers
 
                 results.AddRange(lsds);
             }
-            return results.Select(x => new { Name = x.LLD, Coordinates = GetCoordinates(x.Coordinates, zoomLevel), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
+            return results.Select(x => new { Name = x.Name, Coordinates = GetCoordinates(x.Coordinates, zoomLevel), CenterCoordinates = GetLabelCoordinates(x.Coordinates) });
         }
         private static SqlGeographyBuilder GetSearchArea(BoundaryRequest data)
         {
