@@ -22,13 +22,13 @@ module LSDMap.Home {
             this.boundaryLabels = L.layerGroup([]);
             this.boundaryLabels.addTo(this.map);
 
-            this.markers = new L.MarkerClusterGroup();
-            this.markers.addLayer(new L.Marker(L.latLng([50, -100])));
-            this.markers.addLayer(new L.Marker(L.latLng([50, -100.1])));
-            this.markers.addLayer(new L.Marker(L.latLng([50, -100.2])));
-            this.markers.addLayer(new L.Marker(L.latLng([50, -100.3])));
-            this.markers.addLayer(new L.Marker(L.latLng([50, -100.4])));
-            this.markers.addLayer(new L.Marker(L.latLng([50, -100.5])));
+            this.markers = new L.MarkerClusterGroup();//random place markers
+            this.markers.addLayer(new L.Marker(L.latLng([55.465678, -118.345802])));
+            this.markers.addLayer(new L.Marker(L.latLng([55.465678, -118.645802])));
+            this.markers.addLayer(new L.Marker(L.latLng([55.465678, -118.145802])));
+            this.markers.addLayer(new L.Marker(L.latLng([55.465678, -106.145802])));
+            this.markers.addLayer(new L.Marker(L.latLng([54.465678, -106.245802])));
+            this.markers.addLayer(new L.Marker(L.latLng([55.965678, -106.745802])));
             this.markers.addLayer(new L.Marker(L.latLng([50, -100.6])));
             this.markers.addLayer(new L.Marker(L.latLng([51, -100])));
             this.markers.addLayer(new L.Marker(L.latLng([55, -100])));
