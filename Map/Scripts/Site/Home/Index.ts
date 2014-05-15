@@ -16,7 +16,7 @@ module LSDMap.Home {
             }).addTo(this.map);
             var baseLayers = { "OpenStreeMap": osm };
 
-            this.boundaries = L.multiPolygon([], { color: "blue", fillOpacity: 0, weight: 2, clickable: false });
+            this.boundaries = L.multiPolygon([], { color: "grey", fillOpacity: 0, weight: 2, clickable: false });
             this.boundaries.addTo(this.map);
 
             this.boundaryLabels = L.layerGroup([]);
@@ -91,7 +91,7 @@ module LSDMap.Home {
                 var iconOptions: L.IconOptions = { iconUrl: "/Content/images/marker-icon.png", iconSize: new L.Point(0, 0)};
                 var icon: L.Icon = L.icon(iconOptions);
                 var marker = L.marker(L.latLng([data[i].CenterCoordinates.Lat, data[i].CenterCoordinates.Lng]), {icon: icon});
-                marker.bindLabel(data[i].Name, { noHide: true, offset: [0,0]});
+                marker.bindLabel(data[i].Name, { noHide: true, offset: [data[i].Name.length * -4 ,-10]});
                 this.boundaryLabels.addLayer(marker);
             }
             this.boundaries.setLatLngs(latLongs);

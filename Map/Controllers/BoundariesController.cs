@@ -144,15 +144,22 @@ namespace Map.Controllers
         private Coordinate GetLabelCoordinates(SqlGeography geography)
         {
             double maxLatitude = double.MinValue;
+            double minLatitude = double.MaxValue;
+            double minLongitude = double.MaxValue;
             double maxLongitude = double.MinValue;
             for (int i = 1; i <= geography.STNumPoints(); i++)
             {
                 if (geography.STPointN(i).Lat.Value > maxLatitude)
                     maxLatitude = geography.STPointN(i).Lat.Value;
+                if (geography.STPointN(i).Lat.Value < minLatitude)
+                    minLatitude = geography.STPointN(i).Lat.Value;
+
+                if (geography.STPointN(i).Long.Value < minLongitude)
+                    minLongitude = geography.STPointN(i).Long.Value;
                 if (geography.STPointN(i).Long.Value > maxLongitude)
                     maxLongitude = geography.STPointN(i).Long.Value;
             }
-            return new Coordinate { Lat = maxLatitude, Lng = maxLongitude };
+            return new Coordinate { Lat = (maxLatitude + minLatitude) / 2, Lng = (maxLongitude + minLongitude) / 2 };
         }
     }
 
